@@ -95,9 +95,10 @@ def get_LSA_embedding(words_to_show_on_2D):
 def get_BERT_embedding():
     context_1 = 'drug and drugs'
     context_2 = 'best and better'
-    context_3 = 'play better plays'
+    context_3 = 'play and plays'
+    context_4 = 'produce and products'
 
-    context = [context_1, context_2, context_3]
+    context = [context_1, context_2, context_3, context_4]
 
 
     from transformers import BertTokenizer, BertModel
@@ -136,15 +137,13 @@ def pca(matrix, dim=2):
 
 
 
-def show_on_2D():
-    pass
-
 
 def main():
 
     words_to_show_on_2D = ['drug', 'drugs', 
                            'best', 'better', 
-                           'play', 'plays']
+                           'play', 'plays',
+                           'production', 'products']
 
     embedding_LSA = get_LSA_embedding(words_to_show_on_2D)
     embedding_BERT = get_BERT_embedding()
