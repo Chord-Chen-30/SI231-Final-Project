@@ -4,22 +4,32 @@
 from hashlib import new
 from scipy import rand
 import torch
+import csv
+import re
+import nltk
+nltk.download('stopwords')
+
+from sklearn.feature_extraction.text import TfidfVectorizer
+import pandas as pd
+
+from nltk.corpus import stopwords
+from transformers import BertTokenizer, BertModel
+from sklearn.decomposition import TruncatedSVD
+
+from sklearn.decomposition import PCA
+from sklearn.manifold import TSNE
+import numpy
 
 
 def get_LSA_embedding(words_to_show_on_2D):
 
-    # read COVID-19 corpus
-    import csv
-
     corpus = []
 
-    # Open metadata file
     with open('./metadata.csv') as csv_file:
         
         csv_reader = csv.reader(csv_file, delimiter=',')
         next(csv_reader)
 
-        # Extract abstracts from all the papers
         for lines in csv_reader:
             abstract = lines[8]
             corpus.append(abstract)
@@ -31,12 +41,8 @@ def get_LSA_embedding(words_to_show_on_2D):
         print('{}: {}'.format((i + 1), sample))
 
 
-    import re
-
-    # Convert to lower case
     corpus = [x.lower() for x in corpus]
 
-    # Remove non-alphabet characters
     corpus = [re.sub(r'[^a-z0-9 ]+', '', x) for x in corpus]
 
     print('After data clean-up:')
@@ -45,13 +51,6 @@ def get_LSA_embedding(words_to_show_on_2D):
         print('{}: {}'.format((i + 1), sample))
 
 
-    import nltk
-
-    nltk.download('stopwords')
-
-    from nltk.corpus import stopwords
-
-    # Prepare stopwords for several languages
     stop_words = list(stopwords.words('english'))
     stop_words += list(stopwords.words('french'))
     stop_words += list(stopwords.words('spanish'))
@@ -59,10 +58,6 @@ def get_LSA_embedding(words_to_show_on_2D):
     print(len(stop_words))
 
 
-    from sklearn.feature_extraction.text import TfidfVectorizer
-    import pandas as pd
-
-    # Create document-term matrix through TF-IDF
     vectorizer = TfidfVectorizer(stop_words=stop_words, 
                                 max_features=1000)
     term_document_matrix = vectorizer.fit_transform(corpus)
@@ -74,7 +69,6 @@ def get_LSA_embedding(words_to_show_on_2D):
     key_list.sort()
     print(key_list)
 
-    from sklearn.decomposition import TruncatedSVD
 
     # SVD represent documents and terms in vectors
     svd_model = TruncatedSVD(n_components=10, random_state=0)
@@ -100,9 +94,6 @@ def get_BERT_embedding():
 
     context = [context_1, context_2, context_3, context_4]
 
-
-    from transformers import BertTokenizer, BertModel
-
     tokenenizer = BertTokenizer.from_pretrained('bert-base-uncased')
     bert = BertModel.from_pretrained('bert-base-uncased')
     ret = []
@@ -121,11 +112,7 @@ def get_BERT_embedding():
 
 
 
-
 def pca(matrix, dim=2):
-    from sklearn.decomposition import PCA
-    from sklearn.manifold import TSNE
-    import numpy
 
     pca = PCA(n_components=2, random_state=0)
     new_matrix = pca.fit_transform(matrix)
